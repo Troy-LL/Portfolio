@@ -31,6 +31,10 @@
       src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"
       defer
     ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js"
+      defer
+    ></script>
     <!-- Lenis Smooth Scroll -->
     <script
       src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"
@@ -43,6 +47,20 @@
     <div class="desktop" id="desktop">
       <!-- Wallpaper layer -->
       <div class="desktop-wallpaper"></div>
+
+      <!-- Bounds for draggable windows (so they don't overlap the menubar) -->
+      <div
+        id="desktop-workarea"
+        style="
+          position: absolute;
+          top: 28px;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          pointer-events: none;
+          z-index: 1;
+        "
+      ></div>
 
       <!-- Menu Bar -->
       <div class="desktop-menubar">
@@ -83,7 +101,7 @@
           </div>
           <div class="file-icon__label">Projects</div>
         </div>
-        <div class="desktop-file-icon" data-folder="Contacts">
+        <div class="desktop-file-icon" data-app="contacts">
           <div class="file-icon__img">
             <img src="assets/img/app-icons/contacts/256.png" alt="contact" />
           </div>
@@ -121,7 +139,7 @@
           </div>
           <div class="dock-dot"></div>
         </div>
-        <div class="dock-icon" data-folder="Contacts" title="Contacts">
+        <div class="dock-icon" data-app="contacts" title="Contacts">
           <div class="dock-icon__img">
             <img src="assets/img/app-icons/contacts/256.png" alt="contact" />
           </div>
@@ -130,17 +148,17 @@
       </div>
 
       <!-- About "app" window -->
-      <div class="about-overlay" id="aboutOverlay">
-        <div class="about-window">
+      <div class="about-overlay window-overlay" id="aboutOverlay">
+        <div class="about-window mac-window">
           <div class="about-titlebar">
             <div class="about-dots mac-controls">
               <span class="about-dot about-dot--close mac-close"></span>
               <span class="about-dot mac-min"></span>
-              <span class="about-dot mac-max"></span>
+              <span class="about-dot mac-max disabled"></span>
             </div>
             <div class="about-title">About This Profile</div>
           </div>
-          <div class="about-body">
+          <div class="about-body" data-lenis-prevent>
             <div class="about-avatar">T</div>
             <div class="about-main">
               <h2 class="about-name">Troy Lauren T. Lazaro</h2>
@@ -164,6 +182,132 @@
                     >Leadership · Community · Tech Advocacy</span
                   >
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contacts "app" window -->
+      <div class="contacts-overlay window-overlay" id="contactsOverlay">
+        <div class="contacts-window mac-window">
+          <div class="contacts-sidebar">
+            <div class="contacts-sidebar-top">
+              <div class="contacts-dots mac-controls">
+                <span class="contacts-dot mac-close"></span>
+                <span class="contacts-dot mac-min"></span>
+                <span class="contacts-dot mac-max disabled"></span>
+              </div>
+              <div class="contacts-search-area">
+                <div class="contacts-search-box">
+                  <img src="assets/img/Search.png" alt="search" />
+                  <input type="text" placeholder="Search" />
+                </div>
+              </div>
+            </div>
+            <div class="contacts-sidebar-list" data-lenis-prevent>
+              <div class="contacts-group-letter">L</div>
+              <div class="contacts-list-item active">
+                Lazaro, Troy Lauren T.
+              </div>
+            </div>
+          </div>
+          <div class="contacts-main">
+            <!-- Header: Avatar + Info -->
+            <div class="contacts-detail-header">
+              <div class="contacts-profile-pic">
+                <img src="assets/img/Troy.JPEG" alt="Troy" />
+              </div>
+              <div class="contacts-primary-info">
+                <h1 class="contacts-full-name">Troy Lauren T. Lazaro</h1>
+                <p class="contacts-subtitle">IT Student & Designer</p>
+              </div>
+            </div>
+
+            <!-- Quick Actions Buttons -->
+            <div class="contacts-quick-actions">
+              <div class="quick-action">
+                <div class="action-icon action--blue">
+                  <img src="assets/img/Message.png" alt="Message" />
+                </div>
+                <span>message</span>
+              </div>
+              <div class="quick-action">
+                <div class="action-icon action--blue">
+                  <img src="assets/img/Phone.png" alt="Phone" />
+                </div>
+                <span>iPhone</span>
+              </div>
+              <div class="quick-action">
+                <div class="action-icon action--blue">
+                  <img src="assets/img/Video.png" alt="Video" />
+                </div>
+                <span>video</span>
+              </div>
+              <div class="quick-action">
+                <div class="action-icon action--blue">
+                  <img src="assets/img/Email.png" alt="Email" />
+                </div>
+                <span>mail</span>
+              </div>
+            </div>
+
+            <!-- Data list: Phone, Socials, Note -->
+            <div class="contacts-detail-list" data-lenis-prevent>
+              <div class="detail-row">
+                <span class="detail-label">iPhone</span>
+                <span class="detail-value link-text">+63 975 644 6519</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">home page</span>
+                <span class="detail-value">troy-portfolio.pages.dev</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">GitHub</span>
+                <a
+                  href="https://github.com/Troy-LL"
+                  class="detail-value link-text"
+                  target="_blank"
+                  >@Troy-LL</a
+                >
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Instagram</span>
+                <a
+                  href="https://www.instagram.com/isametroy_/"
+                  class="detail-value link-text"
+                  target="_blank"
+                  >@isametroy_</a
+                >
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">LinkedIn</span>
+                <a
+                  href="https://www.linkedin.com/in/troylazaro/"
+                  class="detail-value link-text"
+                  target="_blank"
+                  >Troy Lazaro</a
+                >
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">note</span>
+                <span class="detail-value note"
+                  >Feel free to reach out for collaborations or tech
+                  advocacy!</span
+                >
+              </div>
+            </div>
+
+            <!-- Footer Toolbar -->
+            <div class="contacts-footer">
+              <div class="footer-btn-group">
+                <button class="contacts-footer-btn">+</button>
+              </div>
+              <div class="footer-btn-group footer--right">
+                <button class="contacts-footer-btn label-btn">Edit</button>
+                <button class="contacts-footer-btn img-btn">
+                  <img src="assets/img/Export.png" alt="share" />
+                </button>
               </div>
             </div>
           </div>
@@ -260,13 +404,13 @@
       </div>
 
       <!-- Finder "app" window -->
-      <div class="finder-overlay" id="finderOverlay">
-        <div class="finder-window">
+      <div class="finder-overlay window-overlay" id="finderOverlay">
+        <div class="finder-window mac-window">
           <div class="finder-sidebar">
             <div class="finder-window-controls mac-controls">
               <span class="finder-dot close mac-close"></span>
               <span class="finder-dot min mac-min"></span>
-              <span class="finder-dot max mac-max"></span>
+              <span class="finder-dot max mac-max disabled"></span>
             </div>
             <div class="finder-sidebar-section">
               <div class="finder-sidebar-title">Favourites</div>
@@ -301,16 +445,6 @@
                   </span>
                   Projects
                 </li>
-                <li data-target="Contacts">
-                  <span class="sidebar-icon">
-                    <img
-                      src="assets/img/app-icons/contacts/256.png"
-                      alt="contacts"
-                      style="width: 16px; height: 16px"
-                    />
-                  </span>
-                  Contacts
-                </li>
               </ul>
             </div>
           </div>
@@ -339,7 +473,7 @@
                 </span>
               </div>
             </div>
-            <div class="finder-content" id="finderContent">
+            <div class="finder-content" id="finderContent" data-lenis-prevent>
               <!-- Finder Icons Injected via JS -->
             </div>
             <div class="finder-statusbar">
@@ -371,7 +505,7 @@
         <div class="flicker-layer"></div>
 
         <!-- ═══════ TERMINAL ═══════ -->
-        <div class="terminal" id="terminal">
+        <div class="terminal" id="terminal" data-lenis-prevent>
           <!-- Output area — results get injected here -->
           <div id="output">
             <div class="terminal-banner">

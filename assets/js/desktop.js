@@ -6,6 +6,11 @@ function initWindowControls() {
   const monitor = document.querySelector(".monitor-bezel");
   const desktop = document.getElementById("desktop");
 
+  // Initialize indicators (Terminal is open on load)
+  document
+    .querySelector('.dock-icon[data-command=""]')
+    ?.classList.add("is-open");
+
   // CLOSE — keep existing shutdown behavior
   closeBtn?.addEventListener("click", () => {
     const terminal = document.getElementById("terminal");
@@ -20,6 +25,9 @@ function initWindowControls() {
       terminal.style.opacity = "1";
       terminal.style.transform = "none";
       terminal.style.filter = "none";
+      document
+        .querySelector('.dock-icon[data-command=""]')
+        ?.classList.remove("is-open");
     }, 600);
   });
 
@@ -151,19 +159,40 @@ function initDesktopInteractions() {
 
   document.querySelectorAll(".dock-icon").forEach((icon) => {
     icon.addEventListener("click", () => {
-      const app = icon.dataset.app || null;
-      const command = icon.dataset.command || null;
-      const folder = icon.dataset.folder || null;
+      const app = icon.dataset.app !== undefined ? icon.dataset.app : null;
+      const command =
+        icon.dataset.command !== undefined ? icon.dataset.command : null;
+      const folder =
+        icon.dataset.folder !== undefined ? icon.dataset.folder : null;
 
       // About app: open overlay on the desktop instead of restoring terminal
       if (app === "about") {
         if (!aboutOverlay) return;
         aboutOverlay.classList.add("is-visible");
+        icon.classList.add("is-open");
         gsap.fromTo(
           ".about-window",
           { opacity: 0, scale: 0.9, y: 20 },
           { opacity: 1, scale: 1, y: 0, duration: 0.35, ease: "back.out(1.3)" },
         );
+        if (typeof window.focusWindow === "function")
+          window.focusWindow(".about-window");
+        return;
+      }
+
+      // Standalone Contacts app
+      if (app === "contacts") {
+        const contactsOverlay = document.getElementById("contactsOverlay");
+        if (!contactsOverlay) return;
+        contactsOverlay.classList.add("is-visible");
+        icon.classList.add("is-open");
+        gsap.fromTo(
+          ".contacts-window",
+          { opacity: 0, scale: 0.9, y: 20 },
+          { opacity: 1, scale: 1, y: 0, duration: 0.35, ease: "power2.out" },
+        );
+        if (typeof window.focusWindow === "function")
+          window.focusWindow(".contacts-window");
         return;
       }
 
@@ -189,8 +218,18 @@ function initDesktopInteractions() {
 
     // Double click: open
     icon.addEventListener("dblclick", () => {
-      const command = icon.dataset.command || null;
-      const folder = icon.dataset.folder || null;
+      const app = icon.dataset.app !== undefined ? icon.dataset.app : null;
+      const command =
+        icon.dataset.command !== undefined ? icon.dataset.command : null;
+      const folder =
+        icon.dataset.folder !== undefined ? icon.dataset.folder : null;
+
+      if (app === "contacts") {
+        const conn = document.querySelector('.dock-icon[data-app="contacts"]');
+        conn?.click(); // reuse dock click logic
+        return;
+      }
+
       if (folder && typeof window.openFinder === "function") {
         window.openFinder(folder);
       } else if (command !== null) {
@@ -220,6 +259,9 @@ function initAboutApp() {
       onComplete: () => {
         overlay.classList.remove("is-visible");
         windowEl.classList.remove("is-maximized");
+        document
+          .querySelector('.dock-icon[data-app="about"]')
+          ?.classList.remove("is-open");
       },
     });
   }
@@ -233,15 +275,41 @@ function initAboutApp() {
     e.stopPropagation();
     close();
   });
+}
 
-  maxDot?.addEventListener("click", (e) => {
+// Contacts app interactions
+function initContactsApp() {
+  const overlay = document.getElementById("contactsOverlay");
+  if (!overlay) return;
+
+  const windowEl = overlay.querySelector(".contacts-window");
+  const closeDot = overlay.querySelector(".mac-close");
+  const minDot = overlay.querySelector(".mac-min");
+
+  function close() {
+    gsap.to(windowEl, {
+      opacity: 0,
+      scale: 0.9,
+      y: 18,
+      duration: 0.25,
+      ease: "power2.in",
+      onComplete: () => {
+        overlay.classList.remove("is-visible");
+        document
+          .querySelector('.dock-icon[data-app="contacts"]')
+          ?.classList.remove("is-open");
+      },
+    });
+  }
+
+  closeDot?.addEventListener("click", (e) => {
     e.stopPropagation();
-    windowEl.classList.toggle("is-maximized");
+    close();
   });
 
-  // Click outside window closes as well
-  overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) close();
+  minDot?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    close();
   });
 }
 
@@ -305,6 +373,9 @@ function initFinderApp() {
       onComplete: () => {
         overlay.classList.remove("is-visible");
         windowEl.classList.remove("is-maximized");
+        document
+          .querySelectorAll(".dock-icon[data-folder]")
+          .forEach((i) => i.classList.remove("is-open"));
       },
     });
   }
@@ -317,19 +388,6 @@ function initFinderApp() {
   minDot?.addEventListener("click", (e) => {
     e.stopPropagation();
     close(); // Minimized overlays just hide back to dock state essentially
-  });
-
-  maxDot?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    windowEl.classList.toggle("is-maximized");
-  });
-
-  overlay.addEventListener("click", (e) => {
-    if (
-      e.target === overlay ||
-      e.target.classList.contains("finder-window-controls")
-    )
-      close();
   });
 
   // Sidebar navigation
@@ -353,6 +411,14 @@ window.openFinder = function (folderName) {
   if (statusEl) statusEl.textContent = `guest > Desktop > ${folderName}`;
 
   // Update active sidebar item
+  // Dock Indicator
+  document
+    .querySelectorAll(".dock-icon[data-folder]")
+    .forEach((i) => i.classList.remove("is-open"));
+  document
+    .querySelector(`.dock-icon[data-folder="${folderName}"]`)
+    ?.classList.add("is-open");
+
   const sidebarItems = overlay.querySelectorAll(".finder-sidebar ul li");
   sidebarItems.forEach((item) => {
     if (item.dataset.target === folderName) {
@@ -390,6 +456,8 @@ window.openFinder = function (folderName) {
       { opacity: 1, scale: 1, duration: 0.25, ease: "power2.out" },
     );
   }
+  if (typeof window.focusWindow === "function")
+    window.focusWindow(".finder-window");
 };
 
 // ── Control Center interactions ──
@@ -450,4 +518,72 @@ function initControlCenter() {
       }
     });
   });
+}
+
+// ── Virtual Desktop Dragging & Focus ──
+window.focusWindow = function (targetEl) {
+  document
+    .querySelectorAll(".mac-window")
+    .forEach((w) => w.classList.remove("is-focused"));
+
+  if (targetEl) {
+    const el =
+      typeof targetEl === "string"
+        ? document.querySelector(targetEl)
+        : targetEl;
+    if (!el) return;
+    el.classList.add("is-focused");
+
+    // Reset all overlays to lower z-index
+    document.querySelectorAll(".window-overlay").forEach((over) => {
+      over.style.zIndex = "20";
+    });
+
+    // Bring current focused to front
+    if (
+      el.parentElement &&
+      el.parentElement.classList.contains("window-overlay")
+    ) {
+      el.parentElement.style.zIndex = "30";
+    }
+  }
+};
+
+function initDraggableWindows() {
+  if (typeof Draggable !== "undefined") {
+    const windows = [".finder-window", ".about-window", ".contacts-window"];
+    windows.forEach((sel) => {
+      let handle = "";
+      if (sel === ".finder-window") {
+        handle = ".finder-topbar, .finder-window-controls";
+      } else if (sel === ".about-window") {
+        handle = ".about-titlebar";
+      } else if (sel === ".contacts-window") {
+        handle = ".contacts-sidebar-top, .contacts-detail-header";
+      }
+
+      Draggable.create(sel, {
+        type: "x,y",
+        handle: handle,
+        bounds: "#desktop-workarea",
+        onPress: function () {
+          window.focusWindow(this.target);
+        },
+      });
+    });
+
+    // Focus fallback
+    document.addEventListener("mousedown", (e) => {
+      const win = e.target.closest(".mac-window");
+      if (win) {
+        window.focusWindow(win);
+      } else if (
+        e.target.closest(".desktop-wallpaper") ||
+        e.target.closest(".desktop-icons-area") ||
+        e.target.closest(".desktop-dock")
+      ) {
+        window.focusWindow(null); // Unfocus everything
+      }
+    });
+  }
 }
