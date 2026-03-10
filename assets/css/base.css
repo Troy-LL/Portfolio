@@ -38,5 +38,74 @@ body {
     -webkit-font-smoothing: none;
     /* keep pixels sharp */
     -moz-osx-font-smoothing: auto;
+    cursor: url("../img/cursors/normal-select.svg") 0 0, auto;
 }
 
+a,
+button,
+.menubar-item,
+.cc-toggle,
+.cc-btn,
+.cc-color-dot,
+.dock-icon,
+.desktop-file-icon,
+.finder-dot,
+.control,
+.nav-btn,
+.sidebar-icon,
+.finder-icon,
+.finder-sidebar li,
+li[data-target] {
+    cursor: url("../img/cursors/link-select.svg") 11 0, pointer !important;
+}
+
+input,
+textarea,
+pre,
+.line,
+#inputDisplay {
+    cursor: url("../img/cursors/text-select.svg") 12 12, text !important;
+}
+
+/* ── Shared macOS Window Controls ── */
+.mac-close,
+.mac-min,
+.mac-max {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mac-close::after,
+.mac-min::after,
+.mac-max::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    background-size: 60%;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* Reveal all icons if any button in the group is hovered */
+.mac-controls:hover .mac-close::after,
+.mac-controls:hover .mac-min::after,
+.mac-controls:hover .mac-max::after {
+    opacity: 1;
+}
+
+/* Custom SVG Icons mapped to color paths */
+.mac-close::after {
+    background-image: url("data:image/svg+xml,%3Csvg width='8' height='8' viewBox='0 0 8 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L7 7M7 1L1 7' stroke='%234c0000' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+.mac-min::after {
+    background-image: url("data:image/svg+xml,%3Csvg width='8' height='8' viewBox='0 0 8 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 4H7' stroke='%23995700' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+.mac-max::after {
+    background-image: url("data:image/svg+xml,%3Csvg width='8' height='8' viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7.5 4.5L10.5 1.5M10.5 1.5V4.5M10.5 1.5H7.5M4.5 7.5L1.5 10.5M1.5 10.5V7.5M1.5 10.5H4.5' stroke='%23006500' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E");
+}

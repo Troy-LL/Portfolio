@@ -1,355 +1,805 @@
 /* ═══════════════════════
    DESKTOP SCENE
    ═══════════════════════ */
+:root {
+  --sys-color: #007aff;
+  --cc-bg: rgba(255, 255, 255, 0.25);
+  --cc-border: rgba(255, 255, 255, 0.4);
+  --cc-btn-bg: rgba(255, 255, 255, 0.6);
+  --cc-btn-active: rgba(255, 255, 255, 0.9);
+  --cc-text: #000;
+  --cc-text-sub: rgba(0, 0, 0, 0.5);
+  --cc-hover: rgba(255, 255, 255, 0.3);
+}
+
+body.dark-theme {
+  --cc-bg: rgba(30, 30, 30, 0.35);
+  --cc-border: rgba(255, 255, 255, 0.1);
+  --cc-btn-bg: rgba(255, 255, 255, 0.1);
+  --cc-btn-active: rgba(255, 255, 255, 0.2);
+  --cc-text: #fff;
+  --cc-text-sub: rgba(255, 255, 255, 0.5);
+  --cc-hover: rgba(255, 255, 255, 0.15);
+}
+
 .desktop {
-    position: fixed;
-    inset: 0;
-    opacity: 0;
-    pointer-events: none;
-    z-index: 50;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
-    /* No transition here — GSAP owns all animation on this element */
+  position: fixed;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 50;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  color: var(--cc-text);
 }
 
 .desktop.desktop--visible {
-    pointer-events: auto;
-    /* opacity is driven by GSAP, not CSS transition */
+  pointer-events: auto;
+  /* opacity is driven by GSAP, not CSS transition */
 }
 
 /* Wallpaper */
 .desktop-wallpaper {
-    position: absolute;
-    inset: 0;
-    background: #000;
+  position: absolute;
+  inset: 0;
+  background: #000;
+  transition: background 0.4s ease;
 }
 
 /* ── Menu Bar ── */
 .desktop-menubar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 28px;
-    background: rgba(20, 20, 20, 0.55);
-    backdrop-filter: blur(24px) saturate(1.6);
-    -webkit-backdrop-filter: blur(24px) saturate(1.6);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 14px;
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.9);
-    z-index: 10;
-    user-select: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 28px;
+  background: rgba(20, 20, 20, 0.55);
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+  z-index: 10;
+  user-select: none;
 }
 
 .menubar-left,
 .menubar-right {
-    display: flex;
-    align-items: center;
-    gap: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .apple-logo {
-    font-size: 15px;
-    margin-right: 4px;
+  font-size: 15px;
+  margin-right: 4px;
 }
 
 .menubar-app-name {
-    font-weight: 600;
-    letter-spacing: 0.01em;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .menubar-item {
-    color: rgba(255, 255, 255, 0.75);
-    font-size: 13px;
-    cursor: default;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 13px;
+  cursor: default;
 }
 
 .menubar-item:hover {
-    color: white;
+  color: white;
+}
+
+.cc-toggle-img {
+  width: 15px;
+  height: 15px;
+  object-fit: contain;
+  filter: brightness(0) invert(1) opacity(0.85);
+  /* Forces icon to white */
+  display: block;
+  cursor: pointer;
+}
+
+.menubar-item:hover .cc-toggle-img {
+  filter: brightness(0) invert(1) opacity(1);
 }
 
 .menubar-status,
 .menubar-clock {
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.85);
-    font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ── Desktop File Icons ── */
 .desktop-icons-area {
-    position: absolute;
-    top: 44px;
-    right: 16px;
-    display: grid;
-    grid-template-columns: 80px;
-    grid-auto-rows: 88px;
-    gap: 2px;
+  position: absolute;
+  top: 44px;
+  right: 16px;
+  display: grid;
+  grid-template-columns: 80px;
+  grid-auto-rows: 88px;
+  gap: 2px;
 }
 
 .desktop-file-icon {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 5px;
-    padding: 8px 6px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.15s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+  padding: 8px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
 }
 
 .desktop-file-icon:hover {
-    background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .desktop-file-icon:active,
 .desktop-file-icon.selected {
-    background: rgba(10, 102, 255, 0.4);
+  background: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 0 2px var(--sys-color);
 }
 
 .file-icon__img {
-    font-size: 36px;
-    line-height: 1;
-    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6));
+  font-size: 48px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6));
+}
+
+.file-icon__img img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
 }
 
 .file-icon__label {
-    font-size: 11px;
-    color: white;
-    text-align: center;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
-    line-height: 1.3;
-    word-break: break-all;
+  font-size: 11px;
+  color: white;
+  text-align: center;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+  line-height: 1.3;
+  word-break: break-all;
 }
 
 /* ── Dock ── */
 .desktop-dock {
-    position: absolute;
-    bottom: 14px;
-    left: 50%;
-    transform: translateX(-50%);
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
 
-    display: flex;
-    align-items: flex-end;
-    gap: 8px;
-    padding: 8px 14px 6px;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 8px 14px 6px;
 
-    background: rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(32px) saturate(2);
-    -webkit-backdrop-filter: blur(32px) saturate(2);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 20px;
-    box-shadow:
-        0 8px 40px rgba(0, 0, 0, 0.5),
-        inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(32px) saturate(2);
+  -webkit-backdrop-filter: blur(32px) saturate(2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  box-shadow:
+    0 8px 40px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
 .dock-divider {
-    width: 1px;
-    height: 44px;
-    background: rgba(255, 255, 255, 0.2);
-    margin: 0 4px;
-    align-self: center;
+  width: 1px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.2);
+  margin: 0 4px;
+  align-self: center;
 }
 
 .dock-icon {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    cursor: pointer;
-    /* Spring cubic-bezier: the overshoot is what makes it feel like Apple */
-    transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
-    transform-origin: bottom center;
-    position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  /* Spring cubic-bezier: the overshoot is what makes it feel like Apple */
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: bottom center;
+  position: relative;
 }
 
 .dock-icon__img {
-    width: 52px;
-    height: 52px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 32px;
-    border-radius: 13px;
-    background: rgba(255, 255, 255, 0.08);
-    box-shadow:
-        0 4px 12px rgba(0, 0, 0, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15);
-    transition: background 0.15s;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
 }
 
-.dock-icon:hover .dock-icon__img {
-    background: rgba(255, 255, 255, 0.18);
+.dock-icon__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 /* Hover magnification — spring bounce */
 .dock-icon:hover {
-    transform: scale(1.35) translateY(-10px);
+  transform: scale(1.35) translateY(-10px);
 }
 
 /* Adjacent sibling magnification — pure CSS */
-.dock-icon:hover+.dock-icon {
-    transform: scale(1.15) translateY(-4px);
+.dock-icon:hover + .dock-icon {
+  transform: scale(1.15) translateY(-4px);
 }
 
 .dock-icon:has(+ .dock-icon:hover) {
-    transform: scale(1.15) translateY(-4px);
+  transform: scale(1.15) translateY(-4px);
+}
+
+/* ── Overrides for Disabled Animations ── */
+body.disable-animations .dock-icon:hover,
+body.disable-animations .dock-icon:hover + .dock-icon,
+body.disable-animations .dock-icon:has(+ .dock-icon:hover) {
+  transform: none !important;
 }
 
 /* Active dot */
 .dock-dot {
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.6);
-    opacity: 0;
-    transition: opacity 0.2s;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  opacity: 0;
+  transition: opacity 0.2s;
 }
 
 /* Show dot when terminal is "open" (default state) */
 .dock-icon[data-command=""] .dock-dot {
-    opacity: 1;
+  opacity: 1;
 }
 
 /* Tooltip style via title attribute */
 .dock-icon[title]:hover::after {
-    content: attr(title);
-    position: absolute;
-    bottom: calc(100% + 12px);
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(30, 30, 30, 0.85);
-    backdrop-filter: blur(8px);
-    color: white;
-    font-size: 12px;
-    padding: 3px 8px;
-    border-radius: 6px;
-    white-space: nowrap;
-    pointer-events: none;
-    font-family: -apple-system, sans-serif;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+  content: attr(title);
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(30, 30, 30, 0.85);
+  backdrop-filter: blur(8px);
+  color: white;
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  font-family: -apple-system, sans-serif;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* ── About App Window ── */
 .about-overlay {
-    position: absolute;
-    inset: 0;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    background: radial-gradient(circle at center, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.9));
-    z-index: 20;
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 0, 0, 0.65),
+    rgba(0, 0, 0, 0.9)
+  );
+  z-index: 20;
 }
 
 .about-overlay.is-visible {
-    display: flex;
+  display: flex;
 }
 
 .about-window {
-    width: min(460px, 90vw);
-    border-radius: 18px;
-    background: rgba(15, 15, 15, 0.96);
-    box-shadow:
-        0 18px 55px rgba(0, 0, 0, 0.9),
-        0 0 0 1px rgba(255, 255, 255, 0.05);
-    overflow: hidden;
+  width: min(460px, 90vw);
+  border-radius: 18px;
+  background: rgba(15, 15, 15, 0.96);
+  box-shadow:
+    0 18px 55px rgba(0, 0, 0, 0.9),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+  overflow: hidden;
 }
 
 .about-titlebar {
-    height: 28px;
-    display: flex;
-    align-items: center;
-    padding: 0 12px;
-    background: linear-gradient(to bottom, #262626, #151515);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  height: 28px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  background: linear-gradient(to bottom, #262626, #151515);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .about-dots {
-    display: flex;
-    gap: 6px;
+  display: flex;
+  gap: 6px;
 }
 
 .about-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #9c9c9c;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #9c9c9c;
 }
 
 .about-dot--close {
-    background: #ff5f57;
+  background: #ff5f57;
 }
 
 .about-title {
-    flex: 1;
-    text-align: center;
-    font-size: 13px;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.85);
-    margin-right: 22px;
+  flex: 1;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+  margin-right: 22px;
 }
 
 .about-body {
-    display: flex;
-    gap: 18px;
-    padding: 18px 20px 20px;
-    align-items: center;
+  display: flex;
+  gap: 18px;
+  padding: 18px 20px 20px;
+  align-items: center;
 }
 
 .about-avatar {
-    width: 90px;
-    height: 90px;
-    border-radius: 22px;
-    background: radial-gradient(circle at 30% 20%, #ffffff, #2ecc71);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 42px;
-    font-weight: 700;
-    color: #020202;
-    box-shadow:
-        0 10px 26px rgba(0, 0, 0, 0.8),
-        0 0 0 2px rgba(0, 0, 0, 0.4);
+  width: 90px;
+  height: 90px;
+  border-radius: 22px;
+  background: radial-gradient(circle at 30% 20%, #ffffff, #2ecc71);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 42px;
+  font-weight: 700;
+  color: #020202;
+  box-shadow:
+    0 10px 26px rgba(0, 0, 0, 0.8),
+    0 0 0 2px rgba(0, 0, 0, 0.4);
 }
 
 .about-main {
-    flex: 1;
+  flex: 1;
 }
 
 .about-name {
-    font-size: 20px;
-    font-weight: 600;
-    color: #f5f5f5;
-    margin-bottom: 4px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #f5f5f5;
+  margin-bottom: 4px;
 }
 
 .about-role {
-    font-size: 13px;
-    color: #c8c8c8;
-    margin-bottom: 12px;
+  font-size: 13px;
+  color: #c8c8c8;
+  margin-bottom: 12px;
 }
 
 .about-grid {
-    display: grid;
-    gap: 6px;
+  display: grid;
+  gap: 6px;
 }
 
 .about-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    font-size: 12px;
-    color: #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  color: #e0e0e0;
 }
 
 .about-label {
-    color: #9a9a9a;
+  color: #9a9a9a;
 }
 
 .about-value {
-    text-align: right;
+  text-align: right;
+}
+
+/* ── Finder App Window ── */
+.finder-overlay {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 25;
+}
+
+.finder-overlay.is-visible {
+  display: flex;
+}
+
+.finder-window {
+  width: 760px;
+  height: 480px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  display: flex;
+  overflow: hidden;
+  color: #333;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+  transform: scale(0.9);
+  opacity: 0;
+}
+
+.finder-sidebar {
+  width: 220px;
+  background: rgba(235, 235, 235, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.finder-window-controls {
+  display: flex;
+  gap: 8px;
+  padding: 16px 16px;
+}
+
+.finder-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.finder-dot.close {
+  background: #ff5f56;
+  border: 1px solid #e0443e;
+}
+
+.finder-dot.min {
+  background: #ffbd2e;
+  border: 1px solid #dea123;
+}
+
+.finder-dot.max {
+  background: #27c93f;
+  border: 1px solid #1aab29;
+}
+
+.finder-sidebar-section {
+  padding: 10px 0;
+}
+
+.finder-sidebar-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.4);
+  text-transform: capitalize;
+  padding: 4px 16px;
+  margin-bottom: 4px;
+}
+
+.finder-sidebar ul {
+  list-style: none;
+  padding: 0 8px;
+  margin: 0;
+}
+
+.finder-sidebar ul li {
+  padding: 6px 8px;
+  margin: 2px 0;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #444;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.1s;
+}
+
+.finder-sidebar ul li:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.finder-sidebar ul li.active {
+  background: #d2dce8;
+  color: #000;
+  font-weight: 500;
+}
+
+.sidebar-icon {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.sidebar-icon img {
+  height: 16px;
+  width: 16px;
+  object-fit: contain;
+}
+
+.finder-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+}
+
+.finder-topbar {
+  height: 52px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.finder-nav-btns {
+  display: flex;
+  gap: 16px;
+  font-size: 16px;
+  color: #999;
+}
+
+.finder-title {
+  flex: 1;
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+}
+
+.finder-toolbar-right {
+  display: flex;
+  gap: 16px;
+  color: #666;
+  font-size: 14px;
+}
+
+.toolbar-img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  filter: brightness(0);
+  /* Force to black */
+  opacity: 0.6;
+  display: block;
+}
+
+.finder-toolbar-right > span:hover .toolbar-img {
+  opacity: 1;
+}
+
+.finder-content {
+  flex: 1;
+  padding: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 20px;
+  overflow-y: auto;
+}
+
+.finder-statusbar {
+  height: 28px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  font-size: 11px;
+  color: #666;
+  background: #fafafa;
+}
+
+/* Icons inside Finder content */
+.finder-icon {
+  width: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.finder-icon img {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+}
+
+.finder-icon-label {
+  font-size: 12px;
+  text-align: center;
+  color: #333;
+  line-height: 1.2;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.finder-icon:active .finder-icon-label {
+  background: var(--sys-color);
+  color: #fff;
+}
+
+/* ── Maximized States ── */
+.finder-window.is-maximized,
+.about-window.is-maximized {
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
+  box-shadow: none;
+  transform: scale(1) !important;
+}
+
+/* ── Control Center Menu ── */
+.cc-menu {
+  position: absolute;
+  top: 36px;
+  right: 14px;
+  width: 290px;
+  background: var(--cc-bg);
+  backdrop-filter: blur(40px) saturate(2);
+  -webkit-backdrop-filter: blur(40px) saturate(2);
+  border: 1px solid var(--cc-border);
+  border-radius: 18px;
+  padding: 14px;
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  z-index: 999;
+}
+
+.cc-menu.is-open {
+  display: flex;
+  animation: ccPop 0.2s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+}
+
+@keyframes ccPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.cc-row-split {
+  display: flex;
+  gap: 12px;
+}
+
+.cc-btn {
+  flex: 1;
+  background: var(--cc-btn-bg);
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  font-size: 12px;
+  font-weight: 500;
+  transition:
+    background 0.15s,
+    transform 0.1s;
+}
+
+.cc-btn:active {
+  transform: scale(0.96);
+}
+
+.cc-btn.active .cc-icon-circle {
+  background: var(--sys-color);
+  color: #fff;
+}
+
+.cc-icon-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cc-text);
+}
+
+body.dark-theme .cc-icon-circle {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* System Color Card */
+.cc-card {
+  background: var(--cc-btn-bg);
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.cc-title {
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: var(--cc-text);
+}
+
+.cc-colors {
+  display: flex;
+  justify-content: space-between;
+}
+
+.cc-color-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.1s;
+}
+
+.cc-color-dot:active {
+  transform: scale(0.85);
+}
+
+.cc-color-dot.active::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid var(--sys-color);
+}
+
+/* Wallpaper Card */
+.cc-wallpaper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.cc-wp-preview {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+body.dark-theme .cc-wp-preview {
+  background: linear-gradient(135deg, #1f1c2c 0%, #928dab 100%);
+}
+
+.cc-wp-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cc-text);
+}
+
+.cc-wp-subtitle {
+  font-size: 11px;
+  color: var(--cc-text-sub);
+  margin-top: 2px;
+}
+
+/* ── Global Disable Animations ── */
+body.disable-animations,
+body.disable-animations * {
+  transition: none !important;
+  animation: none !important;
 }

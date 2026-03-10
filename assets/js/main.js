@@ -34,6 +34,8 @@ window.addEventListener('DOMContentLoaded', () => {
     initWindowControls();
     initDesktopInteractions();
     initAboutApp();
+    initFinderApp();
+    initControlCenter();
     initMenubarClock();
 });
 
