@@ -647,6 +647,12 @@ body.dark-theme .preview-body {
   object-fit: contain;
 }
 
+.finder-sidebar ul li.sidebar-sub-item {
+  padding-left: 28px;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
 .finder-main {
   flex: 1;
   display: flex;

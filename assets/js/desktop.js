@@ -524,6 +524,87 @@ window.openFinder = function (folderName, pushToHistory = true) {
           <div class="finder-icon-label">Commissions</div>
         </div>
       `;
+    } else if (folderName === "Commissions") {
+      itemsHtml = `
+        <div class="finder-icon" data-folder="LGU-Kiosk">
+          <img src="assets/img/folder.png" alt="folder">
+          <div class="finder-icon-label">LGU-Kiosk</div>
+        </div>
+      `;
+    } else if (folderName === "LGU-Kiosk") {
+      itemsHtml = `
+        <div class="finder-icon" data-pdf="assets/projects/Commissions/LGU-Kiosk/README.html">
+          <img src="assets/img/Document.png" alt="document">
+          <div class="finder-icon-label">READ ME</div>
+        </div>
+        <div class="finder-icon" data-app="lgu-kiosk">
+          <img src="assets/img/Application.png" alt="app">
+          <div class="finder-icon-label">LGU-Kiosk</div>
+        </div>
+      `;
+    } else if (folderName === "Passion Fueled") {
+      itemsHtml = `
+        <div class="finder-icon" data-folder="Wordle">
+          <img src="assets/img/folder.png" alt="folder">
+          <div class="finder-icon-label">Wordle</div>
+        </div>
+        <div class="finder-icon" data-folder="FlavorMapping">
+          <img src="assets/img/folder.png" alt="folder">
+          <div class="finder-icon-label">FlavorMapping</div>
+        </div>
+        <div class="finder-icon" data-folder="Prompteering">
+          <img src="assets/img/folder.png" alt="folder">
+          <div class="finder-icon-label">Prompteering</div>
+        </div>
+        <div class="finder-icon" data-folder="DevCampResearch">
+          <img src="assets/img/folder.png" alt="folder">
+          <div class="finder-icon-label">DevCampResearch</div>
+        </div>
+      `;
+    } else if (folderName === "Wordle") {
+      itemsHtml = `
+        <div class="finder-icon" data-pdf="assets/projects/Wordle/README.html">
+          <img src="assets/img/Document.png" alt="document">
+          <div class="finder-icon-label">READ ME</div>
+        </div>
+        <div class="finder-icon" data-app="wordle">
+          <img src="assets/img/Application.png" alt="app">
+          <div class="finder-icon-label">Wordle</div>
+        </div>
+      `;
+    } else if (folderName === "FlavorMapping") {
+      itemsHtml = `
+        <div class="finder-icon" data-pdf="assets/projects/FlavorMapping/README.html">
+          <img src="assets/img/Document.png" alt="document">
+          <div class="finder-icon-label">READ ME</div>
+        </div>
+        <div class="finder-icon" data-app="flavor-mapping">
+          <img src="assets/img/Application.png" alt="app">
+          <div class="finder-icon-label">FlavorMapping</div>
+        </div>
+      `;
+    } else if (folderName === "Prompteering") {
+      itemsHtml = `
+        <div class="finder-icon" data-pdf="assets/projects/Prompteering/README.html">
+          <img src="assets/img/Document.png" alt="document">
+          <div class="finder-icon-label">READ ME</div>
+        </div>
+        <div class="finder-icon" data-app="prompteering">
+          <img src="assets/img/Application.png" alt="app">
+          <div class="finder-icon-label">Prompteering</div>
+        </div>
+      `;
+    } else if (folderName === "DevCampResearch") {
+      itemsHtml = `
+        <div class="finder-icon" data-pdf="assets/projects/DevCampResearch/README.html">
+          <img src="assets/img/Document.png" alt="document">
+          <div class="finder-icon-label">READ ME</div>
+        </div>
+        <div class="finder-icon" data-app="devcamp-research">
+          <img src="assets/img/Application.png" alt="app">
+          <div class="finder-icon-label">DevCampResearch</div>
+        </div>
+      `;
     } else {
       itemsHtml = `<div class="finder-icon-label" style="opacity: 0.5; width: 100%; text-align: center; margin-top: 20px;">Folder is empty</div>`;
     }
@@ -535,11 +616,37 @@ window.openFinder = function (folderName, pushToHistory = true) {
       icon.addEventListener("dblclick", () => {
         if (icon.dataset.folder) {
           window.openFinder(icon.dataset.folder);
-        } else if (icon.dataset.app === "contacts") {
-          const conn = document.querySelector(
-            '.dock-icon[data-app="contacts"]',
-          );
-          if (conn) conn.click();
+        } else if (icon.dataset.app) {
+          const app = icon.dataset.app;
+          if (app === "contacts") {
+            const conn = document.querySelector(
+              '.dock-icon[data-app="contacts"]',
+            );
+            if (conn) conn.click();
+          } else {
+            // Project Webapps
+            let url = "";
+            if (app === "wordle") url = "https://wordleer.netlify.app/";
+            else if (app === "flavor-mapping")
+              url = "https://flavormapping.netlify.app/";
+            else if (app === "prompteering")
+              url = "https://prompteering.netlify.app/";
+            else if (app === "devcamp-research")
+              url = "https://researchdevcamp.netlify.app/";
+            else if (app === "lgu-kiosk")
+              url = "https://kioskkk.netlify.app/";
+
+            if (url && typeof window.openPdfViewer === "function") {
+              const width = app === "wordle" ? "900px" : "800px";
+              const height = app === "wordle" ? "800px" : "600px";
+              window.openPdfViewer(
+                url,
+                icon.querySelector(".finder-icon-label").innerText,
+                width,
+                height,
+              );
+            }
+          }
         } else if (icon.dataset.pdf) {
           if (typeof window.openPdfViewer === "function") {
             window.openPdfViewer(
@@ -599,9 +706,20 @@ function initPreviewApp() {
   });
 }
 
-window.openPdfViewer = function (pdfSrc, title) {
+window.openPdfViewer = function (pdfSrc, title, width = "800px", height = "600px") {
   const overlay = document.getElementById("previewOverlay");
   if (!overlay) return;
+
+  const windowEl = overlay.querySelector(".preview-window");
+  if (windowEl) {
+    windowEl.style.width = width;
+    windowEl.style.height = height;
+    // Recenter if not maximized
+    if (!windowEl.classList.contains("is-maximized")) {
+      windowEl.style.marginLeft = `-${parseInt(width) / 2}px`;
+      windowEl.style.marginTop = `-${parseInt(height) / 2}px`;
+    }
+  }
 
   const titleEl = document.getElementById("previewTitle");
   if (titleEl && title) titleEl.textContent = title;
