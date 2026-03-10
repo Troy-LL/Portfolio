@@ -147,6 +147,27 @@
         </div>
       </div>
 
+      <!-- Preview "app" window -->
+      <div class="preview-overlay window-overlay" id="previewOverlay">
+        <div class="preview-window mac-window">
+          <div class="preview-titlebar">
+            <div class="preview-dots mac-controls">
+              <span class="preview-dot mac-close preview-close"></span>
+              <span class="preview-dot mac-min"></span>
+              <span class="preview-dot mac-max disabled"></span>
+            </div>
+            <div class="preview-title" id="previewTitle">Preview</div>
+          </div>
+          <div class="preview-body" data-lenis-prevent>
+            <iframe
+              id="previewIframe"
+              src=""
+              style="width: 100%; height: 100%; border: none"
+            ></iframe>
+          </div>
+        </div>
+      </div>
+
       <!-- About "app" window -->
       <div class="about-overlay window-overlay" id="aboutOverlay">
         <div class="about-window mac-window">
@@ -156,31 +177,29 @@
               <span class="about-dot mac-min"></span>
               <span class="about-dot mac-max disabled"></span>
             </div>
-            <div class="about-title">About This Profile</div>
+            <div class="about-title">About This System</div>
           </div>
           <div class="about-body" data-lenis-prevent>
-            <div class="about-avatar">T</div>
+            <div class="about-avatar">💻</div>
             <div class="about-main">
-              <h2 class="about-name">Troy Lauren T. Lazaro</h2>
-              <p class="about-role">IT Student · Community Leader</p>
+              <h2 class="about-name">Portfolio OS v2.0</h2>
+              <p class="about-role">Developed by Troy Lazaro</p>
               <div class="about-grid">
                 <div class="about-row">
-                  <span class="about-label">Profile</span>
-                  <span class="about-value">SQL_TERM v2.0 – Portfolio</span>
+                  <span class="about-label">Core</span>
+                  <span class="about-value">HTML5 / Vanilla CSS</span>
                 </div>
                 <div class="about-row">
-                  <span class="about-label">User</span>
-                  <span class="about-value">guest@portfolio</span>
+                  <span class="about-label">Logic</span>
+                  <span class="about-value">JavaScript (ES6+)</span>
                 </div>
                 <div class="about-row">
-                  <span class="about-label">Location</span>
-                  <span class="about-value">Caloocan, NCR, Philippines</span>
+                  <span class="about-label">Motion</span>
+                  <span class="about-value">GSAP & Draggable</span>
                 </div>
                 <div class="about-row">
-                  <span class="about-label">Focus</span>
-                  <span class="about-value"
-                    >Leadership · Community · Tech Advocacy</span
-                  >
+                  <span class="about-label">Scroll</span>
+                  <span class="about-value">Lenis Smooth Scroll</span>
                 </div>
               </div>
             </div>
@@ -451,8 +470,8 @@
           <div class="finder-main">
             <div class="finder-topbar">
               <div class="finder-nav-btns">
-                <span class="nav-btn">&lt;</span>
-                <span class="nav-btn">&gt;</span>
+                <span class="nav-btn" id="finderBack">&lt;</span>
+                <span class="nav-btn" id="finderForward">&gt;</span>
               </div>
               <div class="finder-title" id="finderTitle">Resume</div>
               <div class="finder-toolbar-right">

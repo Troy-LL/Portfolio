@@ -11,35 +11,25 @@ function initWindowControls() {
     .querySelector('.dock-icon[data-command=""]')
     ?.classList.add("is-open");
 
-  // CLOSE — keep existing shutdown behavior
+  // CLOSE (Red Dot) - Clears progress, dock dot, and goes to desktop
   closeBtn?.addEventListener("click", () => {
-    const terminal = document.getElementById("terminal");
-    terminal.style.transition = "all 0.5s cubic-bezier(0.4, 0, 0.2, 1)";
-    terminal.style.transform = "scale(0.8) translateY(20px)";
-    terminal.style.opacity = "0";
-    terminal.style.filter = "blur(10px)";
+    if (!monitor || !desktop) return;
+    minimizeToDesktop(monitor, desktop);
 
-    setTimeout(() => {
-      terminal.innerHTML =
-        '<div class="shutdown-msg" style="color:red; font-size: 2rem; text-align:center; padding-top: 20vh;">SYSTEM HALTED</div>';
-      terminal.style.opacity = "1";
-      terminal.style.transform = "none";
-      terminal.style.filter = "none";
-      document
-        .querySelector('.dock-icon[data-command=""]')
-        ?.classList.remove("is-open");
-    }, 600);
+    // Completely reset terminal progress
+    if (typeof resetTerminal === "function") resetTerminal();
+
+    // Remove dock indicator dot for terminal
+    document
+      .querySelector('.dock-icon[data-command=""]')
+      ?.classList.remove("is-open");
   });
 
-  // MINIMIZE → macOS desktop
+  // MINIMIZE (Yellow Dot) → Desktop (Keeps progress & dock dot)
   minBtn?.addEventListener("click", () => {
     if (!monitor || !desktop) return;
-    const isMinimized = monitor.classList.contains("is-minimized");
-    if (!isMinimized) {
-      minimizeToDesktop(monitor, desktop);
-    } else {
-      restoreFromDesktop(monitor, desktop);
-    }
+    minimizeToDesktop(monitor, desktop);
+    // Note: We DON'T remove the .is-open class here
   });
 
   // MAXIMIZE — stretch monitor to viewport (no browser fullscreen)
@@ -48,6 +38,18 @@ function initWindowControls() {
     const isMax = monitor.classList.toggle("is-maximized");
     document.body.style.overflow = isMax ? "hidden" : "auto";
   });
+}
+
+// Helper to clear terminal progress
+function resetTerminal() {
+  const output = document.getElementById("output");
+  if (output) {
+    output.innerHTML = `
+      <div class="terminal-banner">SQL_TERM v2.0 - PORTFOLIO DATABASE</div>
+      <pre class="line dim">Type <span class="bright">HELP</span> to see available commands.</pre>
+      <pre class="line">&nbsp;</pre>
+    `;
+  }
 }
 
 // Minimize: terminal out → desktop in
@@ -398,11 +400,66 @@ function initFinderApp() {
       if (target) window.openFinder(target);
     });
   });
+
+  // Navigation history
+  const backBtn = document.getElementById("finderBack");
+  const forwardBtn = document.getElementById("finderForward");
+
+  backBtn?.addEventListener("click", () => {
+    if (window.finderHistoryIndex > 0) {
+      window.finderHistoryIndex--;
+      const target = window.finderHistory[window.finderHistoryIndex];
+      window.openFinder(target, false); // false = don't push to history
+    }
+  });
+
+  forwardBtn?.addEventListener("click", () => {
+    if (window.finderHistoryIndex < window.finderHistory.length - 1) {
+      window.finderHistoryIndex++;
+      const target = window.finderHistory[window.finderHistoryIndex];
+      window.openFinder(target, false); // false = don't push to history
+    }
+  });
 }
 
-window.openFinder = function (folderName) {
+window.finderHistory = ["Resume"]; // Initial state
+window.finderHistoryIndex = 0;
+
+window.openFinder = function (folderName, pushToHistory = true) {
   const overlay = document.getElementById("finderOverlay");
   if (!overlay) return;
+
+  // History management
+  if (pushToHistory) {
+    // If we're not at the end of the history, truncate it
+    if (window.finderHistoryIndex < window.finderHistory.length - 1) {
+      window.finderHistory = window.finderHistory.slice(
+        0,
+        window.finderHistoryIndex + 1,
+      );
+    }
+    // Only push if it's different from the current
+    if (window.finderHistory[window.finderHistoryIndex] !== folderName) {
+      window.finderHistory.push(folderName);
+      window.finderHistoryIndex++;
+    }
+  }
+
+  // Update button states
+  const backBtn = document.getElementById("finderBack");
+  const forwardBtn = document.getElementById("finderForward");
+  if (backBtn) {
+    backBtn.style.opacity = window.finderHistoryIndex > 0 ? "1" : "0.3";
+    backBtn.style.pointerEvents = window.finderHistoryIndex > 0 ? "auto" : "none";
+  }
+  if (forwardBtn) {
+    forwardBtn.style.opacity =
+      window.finderHistoryIndex < window.finderHistory.length - 1 ? "1" : "0.3";
+    forwardBtn.style.pointerEvents =
+      window.finderHistoryIndex < window.finderHistory.length - 1
+        ? "auto"
+        : "none";
+  }
 
   // Update title and path
   const titleEl = document.getElementById("finderTitle");
@@ -428,23 +485,71 @@ window.openFinder = function (folderName) {
     }
   });
 
-  // Generate dummy content based on folder to show it works
+  // Generate realistic content based on folder
   const contentEl = document.getElementById("finderContent");
   if (contentEl) {
     contentEl.innerHTML = "";
-    const itemsCount = Math.floor(Math.random() * 4) + 3; // 3 to 6 items
-    for (let i = 0; i < itemsCount; i++) {
-      const fakeIconType = Math.random() > 0.4 ? "file" : "folder";
-      const iconImg = fakeIconType === "folder" ? "folder.png" : "contact.png"; // Using existing images
+    let itemsHtml = "";
 
-      const el = document.createElement("div");
-      el.className = "finder-icon";
-      el.innerHTML = `
-                <img src="assets/img/${iconImg}" alt="icon">
-                <div class="finder-icon-label">${folderName} Item ${i + 1}</div>
-            `;
-      contentEl.appendChild(el);
+    if (folderName === "Desktop") {
+      itemsHtml = `
+        <div class="finder-icon" data-folder="Resume">
+          <img src="assets/img/folder.png" alt="folder">
+          <div class="finder-icon-label">Resume</div>
+        </div>
+        <div class="finder-icon" data-folder="Projects">
+          <img src="assets/img/folder.png" alt="folder">
+          <div class="finder-icon-label">Projects</div>
+        </div>
+        <div class="finder-icon" data-app="contacts">
+          <img src="assets/img/app-icons/contacts/256.png" alt="app">
+          <div class="finder-icon-label">Contacts</div>
+        </div>
+      `;
+    } else if (folderName === "Resume") {
+      itemsHtml = `
+        <div class="finder-icon" data-pdf="assets/img/Resume - Troy.pdf">
+          <img src="assets/img/Document.png" alt="pdf">
+          <div class="finder-icon-label">Resume - Troy.pdf</div>
+        </div>
+      `;
+    } else if (folderName === "Projects") {
+      itemsHtml = `
+        <div class="finder-icon" data-folder="Passion Fueled">
+          <img src="assets/img/folder.png" alt="folder">
+          <div class="finder-icon-label">Passion Fueled</div>
+        </div>
+        <div class="finder-icon" data-folder="Commissions">
+          <img src="assets/img/folder.png" alt="folder">
+          <div class="finder-icon-label">Commissions</div>
+        </div>
+      `;
+    } else {
+      itemsHtml = `<div class="finder-icon-label" style="opacity: 0.5; width: 100%; text-align: center; margin-top: 20px;">Folder is empty</div>`;
     }
+
+    contentEl.innerHTML = itemsHtml;
+
+    // Attach click events
+    contentEl.querySelectorAll(".finder-icon").forEach((icon) => {
+      icon.addEventListener("dblclick", () => {
+        if (icon.dataset.folder) {
+          window.openFinder(icon.dataset.folder);
+        } else if (icon.dataset.app === "contacts") {
+          const conn = document.querySelector(
+            '.dock-icon[data-app="contacts"]',
+          );
+          if (conn) conn.click();
+        } else if (icon.dataset.pdf) {
+          if (typeof window.openPdfViewer === "function") {
+            window.openPdfViewer(
+              icon.dataset.pdf,
+              icon.querySelector(".finder-icon-label").innerText,
+            );
+          }
+        }
+      });
+    });
   }
 
   // Show window if not open
@@ -458,6 +563,62 @@ window.openFinder = function (folderName) {
   }
   if (typeof window.focusWindow === "function")
     window.focusWindow(".finder-window");
+};
+
+// ── Preview app interactions ──
+function initPreviewApp() {
+  const overlay = document.getElementById("previewOverlay");
+  if (!overlay) return;
+
+  const windowEl = overlay.querySelector(".preview-window");
+  const closeDot = overlay.querySelector(".mac-close");
+  const minDot = overlay.querySelector(".mac-min");
+
+  function close() {
+    gsap.to(windowEl, {
+      opacity: 0,
+      scale: 0.9,
+      duration: 0.2,
+      ease: "power2.in",
+      onComplete: () => {
+        overlay.classList.remove("is-visible");
+        const iframe = overlay.querySelector("iframe");
+        if (iframe) iframe.src = ""; // Stop loading when closed
+      },
+    });
+  }
+
+  closeDot?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    close();
+  });
+
+  minDot?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    close();
+  });
+}
+
+window.openPdfViewer = function (pdfSrc, title) {
+  const overlay = document.getElementById("previewOverlay");
+  if (!overlay) return;
+
+  const titleEl = document.getElementById("previewTitle");
+  if (titleEl && title) titleEl.textContent = title;
+
+  const iframe = overlay.querySelector("iframe");
+  if (iframe) iframe.src = pdfSrc;
+
+  if (!overlay.classList.contains("is-visible")) {
+    overlay.classList.add("is-visible");
+    gsap.fromTo(
+      overlay.querySelector(".preview-window"),
+      { opacity: 0, scale: 0.95 },
+      { opacity: 1, scale: 1, duration: 0.25, ease: "power2.out" },
+    );
+  }
+  if (typeof window.focusWindow === "function")
+    window.focusWindow(".preview-window");
 };
 
 // ── Control Center interactions ──
@@ -551,7 +712,12 @@ window.focusWindow = function (targetEl) {
 
 function initDraggableWindows() {
   if (typeof Draggable !== "undefined") {
-    const windows = [".finder-window", ".about-window", ".contacts-window"];
+    const windows = [
+      ".finder-window",
+      ".about-window",
+      ".contacts-window",
+      ".preview-window",
+    ];
     windows.forEach((sel) => {
       let handle = "";
       if (sel === ".finder-window") {
@@ -560,6 +726,8 @@ function initDraggableWindows() {
         handle = ".about-titlebar";
       } else if (sel === ".contacts-window") {
         handle = ".contacts-sidebar-top, .contacts-detail-header";
+      } else if (sel === ".preview-window") {
+        handle = ".preview-titlebar";
       }
 
       Draggable.create(sel, {
