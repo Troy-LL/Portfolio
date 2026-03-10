@@ -39,7 +39,6 @@ window.addEventListener("DOMContentLoaded", () => {
   initMenubarClock();
   initDraggableWindows();
   initContactsApp();
-  initPreviewApp();
 });
 
 // Keep focus on input

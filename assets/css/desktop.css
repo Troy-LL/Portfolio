@@ -485,6 +485,43 @@ body.disable-animations .dock-icon:has(+ .dock-icon:hover) {
 .preview-body {
   flex: 1;
   background: #ebebeb;
+  position: relative;
+}
+
+.preview-iframe-shim {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+}
+
+/* If the window is focused, we want to interact with the iframe, not the shim */
+.preview-window.is-focused .preview-iframe-shim {
+  pointer-events: none;
+}
+
+/* Performance fix: ignore iframes while dragging so they don't steal mouse events */
+body.is-dragging iframe {
+  pointer-events: none !important;
+}
+
+/* Scaling fix for Wordle: make the iframe think it has more room, then scale it down */
+.preview-body.is-wordle {
+  overflow: hidden;
+  background: #121213; /* Match Wordle dark theme */
+}
+
+.preview-body.is-wordle iframe {
+  width: 140% !important;
+  height: 140% !important;
+  transform: scale(0.715); /* 1 / 1.4 */
+  transform-origin: top left;
+}
+
+/* Adjust shim to match scaled iframe surface if needed, 
+   but since and inset:0 works on the container, we are good. */
+.preview-body.is-wordle .preview-iframe-shim {
+  width: 100%;
+  height: 100%;
 }
 
 body.dark-theme .preview-window {

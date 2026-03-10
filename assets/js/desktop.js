@@ -533,7 +533,7 @@ window.openFinder = function (folderName, pushToHistory = true) {
       `;
     } else if (folderName === "LGU-Kiosk") {
       itemsHtml = `
-        <div class="finder-icon" data-pdf="assets/projects/Commissions/LGU-Kiosk/README.html">
+        <div class="finder-icon" data-pdf="assets/projects/Commissions/LGU-Kiosk/README.pdf">
           <img src="assets/img/Document.png" alt="document">
           <div class="finder-icon-label">READ ME</div>
         </div>
@@ -563,7 +563,7 @@ window.openFinder = function (folderName, pushToHistory = true) {
       `;
     } else if (folderName === "Wordle") {
       itemsHtml = `
-        <div class="finder-icon" data-pdf="assets/projects/Wordle/README.html">
+        <div class="finder-icon" data-pdf="assets/projects/Wordle/README.pdf">
           <img src="assets/img/Document.png" alt="document">
           <div class="finder-icon-label">READ ME</div>
         </div>
@@ -574,7 +574,7 @@ window.openFinder = function (folderName, pushToHistory = true) {
       `;
     } else if (folderName === "FlavorMapping") {
       itemsHtml = `
-        <div class="finder-icon" data-pdf="assets/projects/FlavorMapping/README.html">
+        <div class="finder-icon" data-pdf="assets/projects/FlavorMapping/README.pdf">
           <img src="assets/img/Document.png" alt="document">
           <div class="finder-icon-label">READ ME</div>
         </div>
@@ -585,7 +585,7 @@ window.openFinder = function (folderName, pushToHistory = true) {
       `;
     } else if (folderName === "Prompteering") {
       itemsHtml = `
-        <div class="finder-icon" data-pdf="assets/projects/Prompteering/README.html">
+        <div class="finder-icon" data-pdf="assets/projects/Prompteering/README.pdf">
           <img src="assets/img/Document.png" alt="document">
           <div class="finder-icon-label">READ ME</div>
         </div>
@@ -596,7 +596,7 @@ window.openFinder = function (folderName, pushToHistory = true) {
       `;
     } else if (folderName === "DevCampResearch") {
       itemsHtml = `
-        <div class="finder-icon" data-pdf="assets/projects/DevCampResearch/README.html">
+        <div class="finder-icon" data-pdf="assets/projects/DevCampResearch/README.pdf">
           <img src="assets/img/Document.png" alt="document">
           <div class="finder-icon-label">READ ME</div>
         </div>
@@ -637,13 +637,11 @@ window.openFinder = function (folderName, pushToHistory = true) {
               url = "https://kioskkk.netlify.app/";
 
             if (url && typeof window.openPdfViewer === "function") {
-              const width = app === "wordle" ? "900px" : "800px";
-              const height = app === "wordle" ? "800px" : "600px";
               window.openPdfViewer(
                 url,
                 icon.querySelector(".finder-icon-label").innerText,
-                width,
-                height,
+                "800px",
+                "650px",
               );
             }
           }
@@ -672,71 +670,134 @@ window.openFinder = function (folderName, pushToHistory = true) {
     window.focusWindow(".finder-window");
 };
 
-// ── Preview app interactions ──
-function initPreviewApp() {
-  const overlay = document.getElementById("previewOverlay");
-  if (!overlay) return;
-
-  const windowEl = overlay.querySelector(".preview-window");
-  const closeDot = overlay.querySelector(".mac-close");
-  const minDot = overlay.querySelector(".mac-min");
-
-  function close() {
-    gsap.to(windowEl, {
-      opacity: 0,
-      scale: 0.9,
-      duration: 0.2,
-      ease: "power2.in",
-      onComplete: () => {
-        overlay.classList.remove("is-visible");
-        const iframe = overlay.querySelector("iframe");
-        if (iframe) iframe.src = ""; // Stop loading when closed
-      },
-    });
-  }
-
-  closeDot?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    close();
-  });
-
-  minDot?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    close();
-  });
-}
+// Preview app initialization is now handled dynamically in openPdfViewer
 
 window.openPdfViewer = function (pdfSrc, title, width = "800px", height = "600px") {
-  const overlay = document.getElementById("previewOverlay");
-  if (!overlay) return;
+  const desktop = document.getElementById('desktop');
+  if (!desktop) return;
 
-  const windowEl = overlay.querySelector(".preview-window");
-  if (windowEl) {
-    windowEl.style.width = width;
-    windowEl.style.height = height;
-    // Recenter if not maximized
-    if (!windowEl.classList.contains("is-maximized")) {
-      windowEl.style.marginLeft = `-${parseInt(width) / 2}px`;
-      windowEl.style.marginTop = `-${parseInt(height) / 2}px`;
+  // Re-use existing preview window if it exists (Singleton Pattern)
+  const existingOverlay = document.querySelector('.preview-overlay');
+  if (existingOverlay) {
+    const win = existingOverlay.querySelector('.preview-window');
+    const titleEl = existingOverlay.querySelector('.preview-title');
+    const iframe = existingOverlay.querySelector('iframe');
+    const previewBody = existingOverlay.querySelector('.preview-body');
+    
+    if (titleEl) titleEl.textContent = title || 'Preview';
+    if (iframe) iframe.src = pdfSrc;
+    
+    // Toggle Wordle scaling class
+    if (previewBody) {
+      if (pdfSrc.includes('wordleer')) {
+        previewBody.classList.add('is-wordle');
+      } else {
+        previewBody.classList.remove('is-wordle');
+      }
     }
+    
+    // Use consistent size
+    if (win) {
+      win.style.width = width;
+      win.style.height = height;
+    }
+    
+    window.focusWindow(win);
+    
+    // Bounce animation to show it updated
+    gsap.fromTo(win, { scale: 0.98 }, { scale: 1, duration: 0.3, ease: "back.out(2)" });
+    return;
   }
 
-  const titleEl = document.getElementById("previewTitle");
-  if (titleEl && title) titleEl.textContent = title;
+  const instanceId = 'preview-' + Date.now();
+  // Create overlay container
+  const overlay = document.createElement('div');
+  overlay.className = 'preview-overlay window-overlay is-visible';
+  overlay.id = instanceId;
+  overlay.style.zIndex = "30";
 
-  const iframe = overlay.querySelector("iframe");
-  if (iframe) iframe.src = pdfSrc;
+  overlay.innerHTML = `
+    <div class="preview-window mac-window" style="width: ${width}; height: ${height}; opacity: 0; transform: scale(0.9) translateY(20px); position: absolute; top: 100px; left: 150px; margin: 0;">
+      <div class="preview-titlebar">
+        <div class="preview-dots mac-controls">
+          <span class="preview-dot mac-close preview-close"></span>
+          <span class="preview-dot mac-min"></span>
+          <span class="preview-dot mac-max disabled"></span>
+        </div>
+        <div class="preview-title">${title || 'Preview'}</div>
+      </div>
+      <div class="preview-body ${pdfSrc.includes('wordleer') ? 'is-wordle' : ''}" data-lenis-prevent>
+        <div class="preview-iframe-shim"></div>
+        <iframe src="${pdfSrc}" style="width: 100%; height: 100%; border: none"></iframe>
+      </div>
+    </div>
+  `;
 
-  if (!overlay.classList.contains("is-visible")) {
-    overlay.classList.add("is-visible");
-    gsap.fromTo(
-      overlay.querySelector(".preview-window"),
-      { opacity: 0, scale: 0.95 },
-      { opacity: 1, scale: 1, duration: 0.25, ease: "power2.out" },
-    );
+  desktop.appendChild(overlay);
+
+  const win = overlay.querySelector('.preview-window');
+  const closeBtn = overlay.querySelector('.mac-close');
+  const minBtn = overlay.querySelector('.mac-min');
+
+  // Entrance animation
+  gsap.to(win, {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    duration: 0.35,
+    ease: "back.out(1.4)"
+  });
+
+  window.focusWindow(win);
+
+  const closeWindow = () => {
+    gsap.to(win, {
+      opacity: 0,
+      scale: 0.9,
+      y: 20,
+      duration: 0.25,
+      ease: "power2.in",
+      onComplete: () => {
+        overlay.remove();
+        if (document.querySelectorAll('.mac-window').length === 0) {
+          document.body.classList.remove('is-dragging');
+        }
+      }
+    });
+  };
+
+  const shim = win.querySelector('.preview-iframe-shim');
+  shim?.addEventListener('mousedown', () => {
+    window.focusWindow(win);
+  });
+
+  closeBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closeWindow();
+  });
+
+  minBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closeWindow();
+  });
+
+  // Initialize Draggable for this new instance
+  if (typeof Draggable !== "undefined") {
+    Draggable.create(win, {
+      type: "x,y",
+      handle: ".preview-titlebar",
+      bounds: "#desktop-workarea",
+      onPress: function () {
+        window.focusWindow(this.target);
+      },
+      onDragStart: function() {
+        document.body.classList.add('is-dragging');
+      },
+      onDragEnd: function() {
+        document.body.classList.remove('is-dragging');
+      }
+    });
   }
-  if (typeof window.focusWindow === "function")
-    window.focusWindow(".preview-window");
 };
 
 // ── Control Center interactions ──
@@ -834,7 +895,6 @@ function initDraggableWindows() {
       ".finder-window",
       ".about-window",
       ".contacts-window",
-      ".preview-window",
     ];
     windows.forEach((sel) => {
       let handle = "";
@@ -855,6 +915,12 @@ function initDraggableWindows() {
         onPress: function () {
           window.focusWindow(this.target);
         },
+        onDragStart: function() {
+          document.body.classList.add('is-dragging');
+        },
+        onDragEnd: function() {
+          document.body.classList.remove('is-dragging');
+        }
       });
     });
 
