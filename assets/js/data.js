@@ -91,6 +91,9 @@ const DATA = {
     projects: [
         'BANNER: PROJECTS & CAMPAIGNS',
         '',
+        '  • DevCamp Team Photo',
+        '    The talented team behind the DevCamp research initiative.',
+        '',
         '  • People’s Advocacies Campaign (JCO)',
         '    Campaigns for student empowerment & civic awareness.',
         '',

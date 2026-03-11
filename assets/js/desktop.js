@@ -244,6 +244,8 @@ function initDesktopInteractions() {
         icon.dataset.command !== undefined ? icon.dataset.command : null;
       const folder =
         icon.dataset.folder !== undefined ? icon.dataset.folder : null;
+      const img =
+        icon.dataset.img !== undefined ? icon.dataset.img : null;
 
       if (app === "contacts") {
         const conn = document.querySelector('.dock-icon[data-app="contacts"]');
@@ -253,6 +255,9 @@ function initDesktopInteractions() {
 
       if (folder && typeof window.openFinder === "function") {
         window.openFinder(folder);
+      } else if (img && typeof window.openImageViewer === "function") {
+        const label = icon.querySelector(".file-icon__label") || icon.querySelector(".finder-icon-label");
+        window.openImageViewer(img, label?.innerText);
       } else if (command !== null) {
         restoreFromDesktop(monitor, desktop, command);
       }
@@ -623,6 +628,10 @@ window.openFinder = function (folderName, pushToHistory = true) {
           <img src="assets/img/Application.png" alt="app">
           <div class="finder-icon-label">DevCampResearch</div>
         </div>
+        <div class="finder-icon has-btn" data-img="assets/img/DevCamp Team.jpeg">
+          <img src="assets/img/DevCamp Team.jpeg" alt="team" style="border-radius: 1px; object-fit: contain; width: 56px; height: auto; max-height: 56px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));">
+          <div class="finder-icon-label">DevCamp Team</div>
+        </div>
       `;
     } else {
       itemsHtml = `<div class="finder-icon-label" style="opacity: 0.5; width: 100%; text-align: center; margin-top: 20px;">Folder is empty</div>`;
@@ -670,6 +679,13 @@ window.openFinder = function (folderName, pushToHistory = true) {
               icon.dataset.pdf,
               icon.querySelector(".finder-icon-label").innerText,
             );
+          } else if (icon.dataset.img) {
+            if (typeof window.openImageViewer === "function") {
+              window.openImageViewer(
+                icon.dataset.img,
+                icon.querySelector(".finder-icon-label").innerText,
+              );
+            }
           }
         }
       });
@@ -814,6 +830,69 @@ window.openPdfViewer = function (pdfSrc, title, width = "800px", height = "600px
       onDragEnd: function() {
         document.body.classList.remove('is-dragging');
       }
+    });
+  }
+};
+
+window.openImageViewer = function (imgSrc, title) {
+  const desktop = document.getElementById('desktop');
+  if (!desktop) return;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'window-overlay image-overlay';
+  overlay.innerHTML = `
+    <div class="mac-window preview-window" style="width: min(90vw, 600px); height: auto; opacity: 0; transform: translateY(20px) scale(0.95);">
+      <div class="preview-titlebar">
+        <div class="preview-dots mac-controls">
+          <div class="preview-dot mac-close"></div>
+          <div class="preview-dot mac-min"></div>
+          <div class="preview-dot mac-max"></div>
+        </div>
+        <div class="preview-title">${title || 'Image Preview'}</div>
+      </div>
+      <div class="preview-body" style="padding: 0; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 0 0 12px 12px;">
+        <img src="${imgSrc}" style="width: 100%; height: auto; display: block;">
+      </div>
+    </div>
+  `;
+
+  desktop.appendChild(overlay);
+
+  const win = overlay.querySelector('.preview-window');
+  const titlebar = overlay.querySelector('.preview-titlebar');
+  const closeBtn = overlay.querySelector('.mac-close');
+
+  gsap.to(win, {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    duration: 0.35,
+    ease: "back.out(1.4)"
+  });
+
+  window.focusWindow(win);
+
+  const closeWindow = () => {
+    gsap.to(win, {
+      opacity: 0,
+      scale: 0.9,
+      y: 20,
+      duration: 0.25,
+      ease: "power2.in",
+      onComplete: () => overlay.remove()
+    });
+  };
+
+  closeBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closeWindow();
+  });
+
+  if (typeof Draggable !== "undefined") {
+    Draggable.create(win, {
+      handle: ".preview-titlebar",
+      bounds: "#desktop-workarea",
+      onPress: () => window.focusWindow(win)
     });
   }
 };
