@@ -229,16 +229,7 @@ function initDesktopInteractions() {
   });
 
   document.querySelectorAll(".desktop-file-icon").forEach((icon) => {
-    // Single click: select
-    icon.addEventListener("click", () => {
-      document
-        .querySelectorAll(".desktop-file-icon")
-        .forEach((i) => i.classList.remove("selected"));
-      icon.classList.add("selected");
-    });
-
-    // Double click: open
-    icon.addEventListener("dblclick", () => {
+    const openHandler = () => {
       const app = icon.dataset.app !== undefined ? icon.dataset.app : null;
       const command =
         icon.dataset.command !== undefined ? icon.dataset.command : null;
@@ -261,7 +252,23 @@ function initDesktopInteractions() {
       } else if (command !== null) {
         restoreFromDesktop(monitor, desktop, command);
       }
+    };
+
+    // Single click: select on desktop, open on mobile
+    icon.addEventListener("click", () => {
+      document
+        .querySelectorAll(".desktop-file-icon")
+        .forEach((i) => i.classList.remove("selected"));
+      icon.classList.add("selected");
+
+      const isMobile = window.matchMedia("(max-width: 768px)").matches;
+      if (isMobile) {
+        openHandler();
+      }
     });
+
+    // Double click: open (Desktop)
+    icon.addEventListener("dblclick", openHandler);
   });
 }
 
@@ -489,7 +496,7 @@ window.openFinder = function (folderName, pushToHistory = true) {
   const titleEl = document.getElementById("finderTitle");
   const statusEl = document.getElementById("finderStatusText");
   if (titleEl) titleEl.textContent = folderName;
-  if (statusEl) statusEl.textContent = `guest > Desktop > ${folderName}`;
+  if (statusEl) statusEl.textContent = `guest > ${folderName}`;
 
   // Update active sidebar item
   // Dock Indicator
@@ -515,121 +522,108 @@ window.openFinder = function (folderName, pushToHistory = true) {
     contentEl.innerHTML = "";
     let itemsHtml = "";
 
-    if (folderName === "Desktop") {
-      itemsHtml = `
-        <div class="finder-icon" data-folder="Resume">
-          <img src="assets/img/folder.png" alt="folder">
-          <div class="finder-icon-label">Resume</div>
-        </div>
-        <div class="finder-icon" data-folder="Projects">
-          <img src="assets/img/folder.png" alt="folder">
-          <div class="finder-icon-label">Projects</div>
-        </div>
-        <div class="finder-icon" data-app="contacts">
-          <img src="assets/img/app-icons/contacts/256.png" alt="app">
-          <div class="finder-icon-label">Contacts</div>
-        </div>
-      `;
-    } else if (folderName === "Resume") {
+    if (folderName === "Resume") {
       itemsHtml = `
         <div class="finder-icon" data-pdf="assets/img/Resume - Troy.pdf">
-          <img src="assets/img/Document.png" alt="pdf">
+          <div class="finder-icon-visual"><img src="assets/img/Document.png" alt="pdf"></div>
           <div class="finder-icon-label">Resume - Troy.pdf</div>
         </div>
       `;
     } else if (folderName === "Projects") {
       itemsHtml = `
         <div class="finder-icon" data-folder="Passion Fueled">
-          <img src="assets/img/folder.png" alt="folder">
+          <div class="finder-icon-visual"><img src="assets/img/folder.png" alt="folder"></div>
           <div class="finder-icon-label">Passion Fueled</div>
         </div>
         <div class="finder-icon" data-folder="Commissions">
-          <img src="assets/img/folder.png" alt="folder">
+          <div class="finder-icon-visual"><img src="assets/img/folder.png" alt="folder"></div>
           <div class="finder-icon-label">Commissions</div>
         </div>
       `;
     } else if (folderName === "Commissions") {
       itemsHtml = `
         <div class="finder-icon" data-folder="LGU-Kiosk">
-          <img src="assets/img/folder.png" alt="folder">
+          <div class="finder-icon-visual"><img src="assets/img/folder.png" alt="folder"></div>
           <div class="finder-icon-label">LGU-Kiosk</div>
         </div>
       `;
     } else if (folderName === "LGU-Kiosk") {
       itemsHtml = `
         <div class="finder-icon" data-pdf="assets/projects/Commissions/LGU-Kiosk/README.pdf">
-          <img src="assets/img/Document.png" alt="document">
+          <div class="finder-icon-visual"><img src="assets/img/Document.png" alt="document"></div>
           <div class="finder-icon-label">READ ME</div>
         </div>
         <div class="finder-icon" data-app="lgu-kiosk">
-          <img src="assets/img/Application.png" alt="app">
+          <div class="finder-icon-visual"><img src="assets/img/Application.png" alt="app"></div>
           <div class="finder-icon-label">LGU-Kiosk</div>
         </div>
       `;
     } else if (folderName === "Passion Fueled") {
       itemsHtml = `
         <div class="finder-icon" data-folder="Wordle">
-          <img src="assets/img/folder.png" alt="folder">
+          <div class="finder-icon-visual"><img src="assets/img/folder.png" alt="folder"></div>
           <div class="finder-icon-label">Wordle</div>
         </div>
         <div class="finder-icon" data-folder="FlavorMapping">
-          <img src="assets/img/folder.png" alt="folder">
+          <div class="finder-icon-visual"><img src="assets/img/folder.png" alt="folder"></div>
           <div class="finder-icon-label">FlavorMapping</div>
         </div>
         <div class="finder-icon" data-folder="Prompteering">
-          <img src="assets/img/folder.png" alt="folder">
+          <div class="finder-icon-visual"><img src="assets/img/folder.png" alt="folder"></div>
           <div class="finder-icon-label">Prompteering</div>
         </div>
         <div class="finder-icon" data-folder="DevCampResearch">
-          <img src="assets/img/folder.png" alt="folder">
+          <div class="finder-icon-visual"><img src="assets/img/folder.png" alt="folder"></div>
           <div class="finder-icon-label">DevCampResearch</div>
         </div>
       `;
     } else if (folderName === "Wordle") {
       itemsHtml = `
         <div class="finder-icon" data-pdf="assets/projects/Wordle/README.pdf">
-          <img src="assets/img/Document.png" alt="document">
+          <div class="finder-icon-visual"><img src="assets/img/Document.png" alt="document"></div>
           <div class="finder-icon-label">READ ME</div>
         </div>
         <div class="finder-icon" data-app="wordle">
-          <img src="assets/img/Application.png" alt="app">
+          <div class="finder-icon-visual"><img src="assets/img/Application.png" alt="app"></div>
           <div class="finder-icon-label">Wordle</div>
         </div>
       `;
     } else if (folderName === "FlavorMapping") {
       itemsHtml = `
         <div class="finder-icon" data-pdf="assets/projects/FlavorMapping/README.pdf">
-          <img src="assets/img/Document.png" alt="document">
+          <div class="finder-icon-visual"><img src="assets/img/Document.png" alt="document"></div>
           <div class="finder-icon-label">READ ME</div>
         </div>
         <div class="finder-icon" data-app="flavor-mapping">
-          <img src="assets/img/Application.png" alt="app">
+          <div class="finder-icon-visual"><img src="assets/img/Application.png" alt="app"></div>
           <div class="finder-icon-label">FlavorMapping</div>
         </div>
       `;
     } else if (folderName === "Prompteering") {
       itemsHtml = `
         <div class="finder-icon" data-pdf="assets/projects/Prompteering/README.pdf">
-          <img src="assets/img/Document.png" alt="document">
+          <div class="finder-icon-visual"><img src="assets/img/Document.png" alt="document"></div>
           <div class="finder-icon-label">READ ME</div>
         </div>
         <div class="finder-icon" data-app="prompteering">
-          <img src="assets/img/Application.png" alt="app">
+          <div class="finder-icon-visual"><img src="assets/img/Application.png" alt="app"></div>
           <div class="finder-icon-label">Prompteering</div>
         </div>
       `;
     } else if (folderName === "DevCampResearch") {
       itemsHtml = `
         <div class="finder-icon" data-pdf="assets/projects/DevCampResearch/README.pdf">
-          <img src="assets/img/Document.png" alt="document">
+          <div class="finder-icon-visual"><img src="assets/img/Document.png" alt="document"></div>
           <div class="finder-icon-label">READ ME</div>
         </div>
         <div class="finder-icon" data-app="devcamp-research">
-          <img src="assets/img/Application.png" alt="app">
+          <div class="finder-icon-visual"><img src="assets/img/Application.png" alt="app"></div>
           <div class="finder-icon-label">DevCampResearch</div>
         </div>
-        <div class="finder-icon has-btn" data-img="assets/img/DevCamp Team.jpeg">
-          <img src="assets/img/DevCamp Team.jpeg" alt="team" style="border-radius: 1px; object-fit: contain; width: 56px; height: auto; max-height: 56px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));">
+        <div class="finder-icon" data-img="assets/img/DevCamp Team.jpeg">
+          <div class="finder-icon-visual">
+            <img src="assets/img/DevCamp Team.jpeg" alt="team" style="border-radius: 1px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));">
+          </div>
           <div class="finder-icon-label">DevCamp Team</div>
         </div>
       `;
@@ -641,7 +635,7 @@ window.openFinder = function (folderName, pushToHistory = true) {
 
     // Attach click events
     contentEl.querySelectorAll(".finder-icon").forEach((icon) => {
-      icon.addEventListener("dblclick", () => {
+      const openHandler = () => {
         if (icon.dataset.folder) {
           window.openFinder(icon.dataset.folder);
         } else if (icon.dataset.app) {
@@ -679,14 +673,23 @@ window.openFinder = function (folderName, pushToHistory = true) {
               icon.dataset.pdf,
               icon.querySelector(".finder-icon-label").innerText,
             );
-          } else if (icon.dataset.img) {
-            if (typeof window.openImageViewer === "function") {
-              window.openImageViewer(
-                icon.dataset.img,
-                icon.querySelector(".finder-icon-label").innerText,
-              );
-            }
           }
+        } else if (icon.dataset.img) {
+          if (typeof window.openImageViewer === "function") {
+            window.openImageViewer(
+              icon.dataset.img,
+              icon.querySelector(".finder-icon-label").innerText,
+            );
+          }
+        }
+      };
+
+      icon.addEventListener("dblclick", openHandler);
+      // Single click: select on desktop, open on mobile
+      icon.addEventListener("click", () => {
+        const isMobile = window.matchMedia("(max-width: 768px)").matches;
+        if (isMobile) {
+          openHandler();
         }
       });
     });
@@ -839,7 +842,7 @@ window.openImageViewer = function (imgSrc, title) {
   if (!desktop) return;
 
   const overlay = document.createElement('div');
-  overlay.className = 'window-overlay image-overlay';
+  overlay.className = 'window-overlay image-overlay is-visible';
   overlay.innerHTML = `
     <div class="mac-window preview-window" style="width: min(90vw, 600px); height: auto; opacity: 0; transform: translateY(20px) scale(0.95);">
       <div class="preview-titlebar">
