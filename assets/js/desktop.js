@@ -92,18 +92,32 @@ function minimizeToDesktop(monitor, desktop) {
     },
   );
 
+  const isMobile = window.matchMedia("(max-width: 768px)").matches;
+  const dockStart = isMobile 
+    ? { x: -20, y: 0, xPercent: 0, yPercent: -50 } 
+    : { x: 0, y: 20, xPercent: -50, yPercent: 0 };
+    
+  const dockEnd = isMobile 
+    ? { x: 0, y: 0, xPercent: 0, yPercent: -50 } 
+    : { x: 0, y: 0, xPercent: -50, yPercent: 0 };
+
   gsap.fromTo(
     ".desktop-dock",
-    { opacity: 0, y: 20 },
-    { opacity: 1, y: 0, duration: 0.45, ease: "back.out(1.4)", delay: 0.3 },
+    { opacity: 0, ...dockStart },
+    { opacity: 1, ...dockEnd, duration: 0.45, ease: "back.out(1.4)", delay: 0.3 },
   );
 }
 
 // Restore: desktop out → terminal in
 function restoreFromDesktop(monitor, desktop, command = null) {
+  const isMobile = window.matchMedia("(max-width: 768px)").matches;
+  const dockOut = isMobile 
+    ? { x: -25, y: 0, xPercent: 0, yPercent: -50 } 
+    : { x: 0, y: 20, xPercent: -50, yPercent: 0 };
+
   gsap.to(".desktop-dock", {
     opacity: 0,
-    y: 20,
+    ...dockOut,
     duration: 0.22,
     ease: "power2.in",
   });
@@ -146,7 +160,12 @@ function restoreFromDesktop(monitor, desktop, command = null) {
       onComplete: () => {
         if (lenis) lenis.start();
         if (command) handleCommand(command);
-        cmdInput.focus();
+        
+        // Only focus keyboard if not mobile
+        const isMobile = window.matchMedia("(max-width: 768px)").matches;
+        if (!isMobile) {
+          cmdInput.focus();
+        }
       },
     },
   );
@@ -696,8 +715,8 @@ window.openPdfViewer = function (pdfSrc, title, width = "800px", height = "600px
       }
     }
     
-    // Use consistent size
-    if (win) {
+    // Use consistent size (on desktop only)
+    if (win && !window.matchMedia("(max-width: 768px)").matches) {
       win.style.width = width;
       win.style.height = height;
     }
@@ -740,13 +759,12 @@ window.openPdfViewer = function (pdfSrc, title, width = "800px", height = "600px
   const minBtn = overlay.querySelector('.mac-min');
 
   // Entrance animation
-  gsap.to(win, {
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    duration: 0.35,
-    ease: "back.out(1.4)"
-  });
+  const isMobile = window.matchMedia("(max-width: 768px)").matches;
+  const animConfig = isMobile 
+    ? { opacity: 1, duration: 0.35 } 
+    : { opacity: 1, scale: 1, y: 0, duration: 0.35, ease: "back.out(1.4)" };
+
+  gsap.to(win, animConfig);
 
   window.focusWindow(win);
 
@@ -939,3 +957,16 @@ function initDraggableWindows() {
     });
   }
 }
+
+// ── Responsive fix for Dock ──
+// Ensures that when we resize across the 768px breakpoint,
+// the GSAP-injected transforms don't break the CSS centering logic.
+let lastIsMobile = window.matchMedia("(max-width: 768px)").matches;
+window.addEventListener("resize", () => {
+  const currentIsMobile = window.matchMedia("(max-width: 768px)").matches;
+  if (currentIsMobile !== lastIsMobile) {
+    // Clear GSAP transforms to let CSS Media Queries take back control
+    gsap.set(".desktop-dock", { clearProps: "transform,x,y,xPercent,yPercent" });
+    lastIsMobile = currentIsMobile;
+  }
+});

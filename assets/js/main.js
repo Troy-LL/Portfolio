@@ -45,9 +45,45 @@ window.addEventListener("DOMContentLoaded", () => {
 document.addEventListener("click", (e) => {
   // Don't steal focus if selecting text
   if (window.getSelection().toString()) return;
-  cmdInput.focus();
+
+  // Don't steal focus if clicking an input or textarea
+  if (
+    e.target.tagName === "INPUT" ||
+    e.target.tagName === "TEXTAREA" ||
+    e.target.isContentEditable
+  ) {
+    return;
+  }
+
+  // Only focus if the terminal is visible (not minimized)
+  const monitor = document.querySelector(".monitor-bezel");
+  const isMinimized = monitor?.classList.contains("is-minimized");
+
+  if (monitor && !isMinimized) {
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+    const terminal = document.getElementById("terminal");
+
+    // On mobile, only focus if clicking inside the terminal specifically
+    if (isMobile) {
+      if (terminal && terminal.contains(e.target)) {
+        cmdInput.focus();
+      }
+    } else {
+      cmdInput.focus();
+    }
+  }
 });
-cmdInput.focus();
+
+// Initial focus only if terminal is visible AND not on mobile
+const initialMonitor = document.querySelector(".monitor-bezel");
+if (
+  initialMonitor &&
+  !initialMonitor.classList.contains("is-minimized") &&
+  !window.matchMedia("(max-width: 768px)").matches
+) {
+  cmdInput.focus();
+}
+
 
 // ── Mirror typed text into the visible display span ──
 // CRITICAL: This makes the text visible and moves the cursor block!
